@@ -4,14 +4,16 @@ import { Rhino3dmLoader } from 'https://cdn.jsdelivr.net/npm/three@0.124.0/examp
 import rhino3dm from 'https://cdn.jsdelivr.net/npm/rhino3dm@0.15.0-beta/rhino3dm.module.js'
 import { RhinoCompute } from 'https://cdn.jsdelivr.net/npm/compute-rhino3d@0.13.0-beta/compute.rhino3d.module.js'
 
-// reference the definition
-const definitionName = 'rnd_node.gh'
+// reference the definition, done
+const definitionName = 'POLY.gh'
 
-// listen for slider change events
-const count_slider = document.getElementById( 'count' )
-count_slider.addEventListener( 'input', onSliderChange, false )
+// listen for slider change events, add sliders here for parameters
+const segments_slider = document.getElementById( 'segments' )
+segments_slider.addEventListener( 'input', onSliderChange, false )
 const radius_slider = document.getElementById( 'radius' )
 radius_slider.addEventListener( 'input', onSliderChange, false )
+// const height_slider = document.getElementById( 'height' )
+// height_slider.addEventListener( 'input', onSliderChange, false )
 
 const downloadButton = document.getElementById("downloadButton")
 downloadButton.onclick = download
@@ -27,11 +29,11 @@ rhino3dm().then(async m => {
     rhino = m
 
     // local 
-    //RhinoCompute.url = 'http://localhost:8081/' // Rhino.Compute server url
+    // RhinoCompute.url = 'http://localhost:8081/' // Rhino.Compute server url
 
     // remote
     RhinoCompute.url = 'https://macad2021.compute.rhino3d.com/'
-    RhinoCompute.apiKey = getApiKey() // needed when calling a remote RhinoCompute server
+    RhinoCompute.apiKey = "macad2021" // needed when calling a remote RhinoCompute server
 
     // source a .gh/.ghx file in the same directory
     let url = definitionName
@@ -49,19 +51,24 @@ async function compute() {
     // collect data
 
     // get slider values
-    let count = document.getElementById('count').valueAsNumber
+    let segments = document.getElementById('segments').valueAsNumber
     let radius = document.getElementById('radius').valueAsNumber
+    // let height = document.getElementById('height').valueAsNumber
 
     // format data
     let param1 = new RhinoCompute.Grasshopper.DataTree('RH_IN:radius')
     param1.append([0], [radius])
-    let param2 = new RhinoCompute.Grasshopper.DataTree('RH_IN:count')
-    param2.append([0], [count])
+    let param2 = new RhinoCompute.Grasshopper.DataTree('RH_IN:segments')
+    param2.append([0], [segments])
+    // let param3 = new RhinoCompute.Grasshopper.DataTree('RH_IN:height')
+    // param3.append([0], [height])
+    
 
     // Add all params to an array
     let trees = []
     trees.push(param1)
     trees.push(param2)
+    // trees.push(param3)
 
     // Call RhinoCompute
 
@@ -91,12 +98,14 @@ function collectResults(values) {
 
     for ( let i = 0; i < values.length; i ++ ) {
 
+        // console.log(data)
         const list = values[i].InnerTree['{ 0; }']
 
         for( let j = 0; j < list.length; j ++) {
 
             const data = JSON.parse(values[i].InnerTree['{ 0; }'][j].data)
             const rhinoObject = rhino.CommonObject.decode(data)
+            doc.objects().add(rhinoObject, null)
             doc.objects().add(rhinoObject, null)
 
         }
@@ -163,7 +172,7 @@ function init() {
 
     // create a scene and a camera
     scene = new THREE.Scene()
-    scene.background = new THREE.Color(1, 1, 1)
+    scene.background = new THREE.Color(0, 0, 0)
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000)
     camera.position.z = - 30
 
@@ -176,7 +185,7 @@ function init() {
     const controls = new OrbitControls(camera, renderer.domElement)
 
     // add a directional light
-    const directionalLight = new THREE.DirectionalLight( 0xffffff )
+    const directionalLight = new THREE.DirectionalLight( 0xfF7399 )
     directionalLight.intensity = 2
     scene.add( directionalLight )
 
