@@ -29,6 +29,7 @@ let rhino, doc
 // load rhino3dm library
 // this library is different to normal javascript libraries (it's actually written in C++)
 // we need to wait for it to load before continuing...
+// buffer
 rhino3dm().then(m => {
 
     // store rhino3dm library as "rhino" in global scope
@@ -72,10 +73,12 @@ async function init () {
     // instead of relying solely on Rhino3dmLoader, we need to load the rhino model "manually" so
     // that we have access to the original rhino geometry
     const url = 'meshes.3dm'
+    // await waits for the file to download before we continue
     const res = await fetch(url)
     const buffer = await res.arrayBuffer()
     doc = rhino.File3dm.fromByteArray(new Uint8Array(buffer))
     console.log(doc)
+
 
     // we can use Rhino3dmLoader.parse() to load the model into three.js for visualisation without
     // having to download it again
